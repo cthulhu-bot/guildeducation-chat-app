@@ -20,17 +20,21 @@ class App extends Component {
   }
 
   loadMessages() {
-    const updateMessages = dataSnapshot => {
-      const data = dataSnapshot.val();
-      this.setState(
-        Object.assign(this.state, {
-          key: dataSnapshot.key,
-          name: data.name,
-          text: data.text,
-          profilePicUrl: data.profilePicUrl,
-          imageUrl: data.imageUrl
-        })
-      );
+    const updateMessages = snapshot => {
+      const data = snapshot.val();
+      const newMessage = {
+        key: snapshot.key,
+        name: data.name,
+        text: data.text,
+        profilePicUrl: data.profilePicUrl,
+        imageUrl: data.imageUrl
+      };
+      const messages = this.state.messages;
+      messages.push(newMessage);
+
+      this.setState({
+        messages: messages
+      });
     };
 
     // listen for changes in firebase and updateState accordingly
@@ -61,6 +65,7 @@ class App extends Component {
   }
 
   render() {
+    let input;
     return (
       <div className="App">
         <header>
@@ -70,11 +75,20 @@ class App extends Component {
         </header>
         <section>
           {this.state.messages.map(message => (
-            <div>{`${message}`}</div>
+            <div key={message.key}>{`${message.text}`}</div>
           ))}
         </section>
-        <form>
-          <input type="text" name="inputText" />
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            if (!input.value.trim()) {
+              return;
+            }
+            this.saveMessage(input.value);
+            input.value = "";
+          }}
+        >
+          <input ref={node => (input = node)} />
         </form>
       </div>
     );
