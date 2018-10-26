@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "emotion": "^9.2.12",
+    "emotion-theming": "^9.2.9",
     "firebase": "^5.5.5",
+    "mineral-ui": "^0.48.0",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
+    "react-emotion": "^9.2.12",
     "react-scripts": "2.0.5",
     "styled-components": "^4.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "jest",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -24,5 +28,9 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "devDependencies": {}
+  "devDependencies": {
+    "enzyme": "^3.7.0",
+    "enzyme-adapter-react-16": "^1.6.0",
+    "react-testing-library": "^5.2.3"
+  }
 }

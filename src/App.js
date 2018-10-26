@@ -1,65 +1,59 @@
 import React, { Component } from "react";
-import "./App.css";
 import firebase from "./firebase";
 import styled from "styled-components";
+import { ThemeProvider } from "mineral-ui/themes";
+import Flex, { FlexItem } from "mineral-ui/Flex";
+import { createStyledComponent } from "mineral-ui/styles";
 
-const Section = styled.section`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
+const LeftMessage = createStyledComponent(FlexItem, {
+  background: "#0b93f6",
+  borderRadius: "25px",
+  color: "white",
+  lineHeight: "24px",
+  marginBottom: "12px",
+  marginRight: "300px",
+  marginTop: "0.5rem",
+  maxWidth: "255px",
+  padding: "10px 20px",
+  textAlign: "center",
+  width: "50%",
+  wordWrap: "break-word"
+});
 
-const MessageEntryLeft = styled.div`
-  width: 50%;
-  word-wrap: break-word;
-  text-align: center;
-  background: #0b93f6;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 25px;
-  max-width: 255px;
-  margin-bottom: 12px;
-  line-height: 24px;
-  margin-left: 3rem;
-  margin-top: 1rem;
-`;
-
-const MessageEntryRight = styled.div`
-  width: 50%;
-  max-width: 255px;
-  word-wrap: break-word;
-  text-align: center;
-  background: #e5e5ea;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 25px;
-`;
+const RightMessage = createStyledComponent(FlexItem, {
+  background: "#e5e5ea",
+  borderRadius: "25px",
+  color: "black",
+  lineHeight: "24px",
+  marginBottom: "12px",
+  marginLeft: "300px",
+  marginTop: "0.5rem",
+  maxWidth: "255px",
+  padding: "10px 20px",
+  textAlign: "center",
+  width: "50%",
+  wordWrap: "break-word"
+});
 
 const MessageBox = styled.input`
   margin-top: 1rem;
-  border-radius: 25px;
-  margin-bottom: 2rem;
   width: 320px;
   letter-spacing: 0.1em !important;
-  text-indent: 5px;
-  height: 55px;
-  margin: 7px 0 3px 0;
+  text-indent: 3px;
+  height: 50px;
   border-radius: 0px !important;
-  border: 1px solid #dcdcdc !important;
-  box-shadow: none !important;
+  margin-bottom: 100px;
 `;
 
-const Title = styled.h1`
-  text-align: left;
-  padding-bottom: 1rem;
-  padding-left: 3rem;
-  padding-top: 1rem;
-  background-color: blue;
-  color: white;
-  margin: 0;
+const Messages = styled.div`
+  text-align: center;
 `;
 
+/**
+ * Entering messages into the message box will be saved off and
+ * redistributed to any other open tabs via the firebase subscription.
+ * Entering a text message will randomly assign a hard coded user.
+ */
 class App extends Component {
   constructor() {
     super();
@@ -108,12 +102,12 @@ class App extends Component {
     firebase
       .database()
       .ref("/messages/")
-      .limitToLast(12)
+      .limitToLast(8)
       .on("child_added", updateMessages);
     firebase
       .database()
       .ref("/messages/")
-      .limitToLast(12)
+      .limitToLast(8)
       .on("child_changed", updateMessages);
   }
 
@@ -123,11 +117,12 @@ class App extends Component {
    * @param messageText
    */
   saveMessage(messageText) {
+    const name = Math.floor(Math.random() * 2) === 0 ? "John Doe" : "Jane Doe";
     return firebase
       .database()
       .ref("/messages/")
       .push({
-        name: "Jane Doe",
+        name: name,
         text: messageText,
         profilePicUrl: this.getProfilePicUrl()
       })
@@ -138,28 +133,35 @@ class App extends Component {
 
   render() {
     let input;
+
     return (
-      <div className="App">
-        <Section>
+      <ThemeProvider>
+        <Messages>
           {this.state.messages.map(message => (
-            <MessageEntryLeft key={message.key}>{`${
-              message.text
-            }`}</MessageEntryLeft>
+            <Flex justifyContent={"center"}>
+              {message.name === "Jane Doe" ? (
+                <LeftMessage key={message.key}>{`${message.text}`}</LeftMessage>
+              ) : (
+                <RightMessage key={message.key}>{`${
+                  message.text
+                }`}</RightMessage>
+              )}
+            </Flex>
           ))}
-        </Section>
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            if (!input.value.trim()) {
-              return;
-            }
-            this.saveMessage(input.value);
-            input.value = "";
-          }}
-        >
-          <MessageBox ref={node => (input = node)} />
-        </form>
-      </div>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              if (!input.value.trim()) {
+                return;
+              }
+              this.saveMessage(input.value);
+              input.value = "";
+            }}
+          >
+            <MessageBox ref={node => (input = node)} />
+          </form>
+        </Messages>
+      </ThemeProvider>
     );
   }
 }
