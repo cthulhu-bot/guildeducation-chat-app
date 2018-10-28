@@ -1,0 +1,17 @@
+.App-messages {
+  text-align: center;
+}
+
+.App-messageBox {
+  margin-top: 1rem;
+  width: 320px;
+  letter-spacing: 0.1em !important;
+  text-indent: 3px;
+  height: 50px;
+  border-radius: 0px !important;
+  margin-bottom: 100px;
+}
+
+.App-messageButton {
+  margin-left: 10px;
+}

@@ -1,53 +1,8 @@
 import React, { Component } from "react";
 import firebase from "./firebase";
-import styled from "styled-components";
 import { ThemeProvider } from "mineral-ui/themes";
-import Flex, { FlexItem } from "mineral-ui/Flex";
-import { createStyledComponent } from "mineral-ui/styles";
-
-const LeftMessage = createStyledComponent(FlexItem, {
-  background: "#0b93f6",
-  borderRadius: "25px",
-  color: "white",
-  lineHeight: "24px",
-  marginBottom: "12px",
-  marginRight: "300px",
-  marginTop: "0.5rem",
-  maxWidth: "255px",
-  padding: "10px 20px",
-  textAlign: "center",
-  width: "50%",
-  wordWrap: "break-word"
-});
-
-const RightMessage = createStyledComponent(FlexItem, {
-  background: "#e5e5ea",
-  borderRadius: "25px",
-  color: "black",
-  lineHeight: "24px",
-  marginBottom: "12px",
-  marginLeft: "300px",
-  marginTop: "0.5rem",
-  maxWidth: "255px",
-  padding: "10px 20px",
-  textAlign: "center",
-  width: "50%",
-  wordWrap: "break-word"
-});
-
-const MessageBox = styled.input`
-  margin-top: 1rem;
-  width: 320px;
-  letter-spacing: 0.1em !important;
-  text-indent: 3px;
-  height: 50px;
-  border-radius: 0px !important;
-  margin-bottom: 100px;
-`;
-
-const Messages = styled.div`
-  text-align: center;
-`;
+import Message from "./Message";
+import "./App.css";
 
 /**
  * Entering messages into the message box will be saved off and
@@ -58,8 +13,11 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
+      currentVal: "",
       messages: []
     };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   /**
@@ -70,8 +28,19 @@ class App extends Component {
     this.loadMessages();
   }
 
-  getProfilePicUrl() {
-    return "";
+  handleChange(event) {
+    this.setState({ currentVal: event.target.value });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
+    if (!event.target[0].value.trim()) {
+      return;
+    }
+    this.props.saveMessage
+      ? this.props.saveMessage(event.target[0].value)
+      : this.saveMessage(event.target[0].value);
+    this.setState({ currentVal: "" });
   }
 
   /**
@@ -86,9 +55,7 @@ class App extends Component {
       const newMessage = {
         key: snapshot.key,
         name: data.name,
-        text: data.text,
-        profilePicUrl: data.profilePicUrl,
-        imageUrl: data.imageUrl
+        text: data.text
       };
       const messages = this.state.messages;
       messages.push(newMessage);
@@ -123,8 +90,7 @@ class App extends Component {
       .ref("/messages/")
       .push({
         name: name,
-        text: messageText,
-        profilePicUrl: this.getProfilePicUrl()
+        text: messageText
       })
       .catch(function(error) {
         console.error("Error writing new message to firebase", error);
@@ -132,35 +98,28 @@ class App extends Component {
   }
 
   render() {
-    let input;
-
     return (
       <ThemeProvider>
-        <Messages>
+        <div className="App-messages">
           {this.state.messages.map(message => (
-            <Flex justifyContent={"center"}>
-              {message.name === "Jane Doe" ? (
-                <LeftMessage key={message.key}>{`${message.text}`}</LeftMessage>
-              ) : (
-                <RightMessage key={message.key}>{`${
-                  message.text
-                }`}</RightMessage>
-              )}
-            </Flex>
+            <Message message={message} />
           ))}
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              if (!input.value.trim()) {
-                return;
-              }
-              this.saveMessage(input.value);
-              input.value = "";
-            }}
-          >
-            <MessageBox ref={node => (input = node)} />
+          <form onSubmit={this.handleSubmit}>
+            <input
+              value={this.state.currentVal}
+              onChange={this.handleChange}
+              data-testid="input"
+              className="App-messageBox"
+            />
+            <button
+              className="App-messageButton"
+              data-testid="inputButton"
+              type="submit"
+            >
+              ^
+            </button>
           </form>
-        </Messages>
+        </div>
       </ThemeProvider>
     );
   }

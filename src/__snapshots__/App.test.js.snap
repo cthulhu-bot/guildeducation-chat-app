@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Messanger app should match its own snapshot 1`] = `
+<div
+  className="App-messages"
+>
+  <form
+    onSubmit={[Function]}
+  >
+    <input
+      className="App-messageBox"
+      data-testid="input"
+      onChange={[Function]}
+      value=""
+    />
+    <button
+      className="App-messageButton"
+      data-testid="inputButton"
+      type="submit"
+    >
+      ^
+    </button>
+  </form>
+</div>
+`;
